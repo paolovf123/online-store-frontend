@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  test:
+    name: Audit + tests + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Audit (alta/crítica falla el build)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Unit tests + coverage
+        run: npm run test:ci
+
+      - name: Coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/solution-test-ventas/
+          retention-days: 7
+
+      - name: Build (smoke — sin inyectar backend real)
+        env:
+          BACKEND_URL: https://placeholder.invalid
+        run: |
+          npm run inject-env
+          npm run build

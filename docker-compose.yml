@@ -1,0 +1,27 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: solution-ventas-frontend
+    # Host:container — el contenedor expone 8080 (puerto no privilegiado, usuario no-root)
+    ports:
+      - "80:8080"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - ventas-network
+    labels:
+      - "com.example.description=Solution Test Ventas Frontend"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+networks:
+  ventas-network:
+    driver: bridge
