@@ -4,27 +4,38 @@ on:
   pull_request:
     branches: [develop, main]
 
+# Pipeline visual: cada etapa es un job encadenado con needs: → GitHub dibuja
+# el grafo horizontal (Audit → Unit tests → Build) en el Summary del run.
+# Cada job corre en un runner nuevo, por eso repite checkout + npm ci (cacheado).
 jobs:
-  test:
-    name: Audit + tests + build
+  audit:
+    name: Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-
       - name: Audit (alta/crítica falla el build)
         run: npm audit --omit=dev --audit-level=high
 
+  test:
+    name: Unit tests
+    needs: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
       - name: Unit tests + coverage
         run: npm run test:ci
-
       - name: Coverage report
         if: always()
         uses: actions/upload-artifact@v4
@@ -33,6 +44,18 @@ jobs:
           path: coverage/solution-test-ventas/
           retention-days: 7
 
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
       - name: Build (smoke — sin inyectar backend real)
         env:
           BACKEND_URL: https://placeholder.invalid
