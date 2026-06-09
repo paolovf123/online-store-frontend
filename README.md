@@ -58,7 +58,7 @@ Threshold en [karma.conf.js](karma.conf.js): 50% statements/lines/functions, 40%
 Dos workflows:
 
 - **[.github/workflows/ci.yml](.github/workflows/ci.yml)** — corre en PRs a `develop` y `main`: `npm audit`, tests + coverage, build smoke.
-- **[.github/workflows/deploy.yml](.github/workflows/deploy.yml)** — corre en push a `develop` (→ staging) o `main` (→ production): asume rol AWS vía OIDC, build con `BACKEND_URL` de SSM, sync a S3, invalidación CloudFront.
+- **[.github/workflows/cd.yml](.github/workflows/cd.yml)** — corre en push a `develop` (→ staging) o `main` (→ production): asume rol AWS vía OIDC, build con `BACKEND_URL` de SSM, sync a S3, invalidación CloudFront.
 
 ### Configuración de GitHub (una sola vez)
 
