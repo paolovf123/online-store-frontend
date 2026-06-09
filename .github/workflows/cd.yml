@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [develop, main]
+    branches: [develop, qa, main]
 
 # Necesario para que GitHub firme el token OIDC que asume el rol AWS
 permissions:
@@ -12,7 +12,7 @@ permissions:
 # Visibles en todos los jobs. ENV_NAME mapea rama → entorno.
 env:
   AWS_REGION: us-east-1
-  ENV_NAME: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+  ENV_NAME: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'qa' && 'qa' || 'staging' }}
 
 # Pipeline visual: Quality gate → Build → Deploy, jobs encadenados con needs:.
 # NOTA: build y deploy declaran `environment:` porque el trust del rol IAM se
@@ -40,7 +40,7 @@ jobs:
     name: Build
     needs: test
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'qa' && 'qa' || 'staging' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -74,7 +74,7 @@ jobs:
     name: Deploy a S3 + CloudFront
     needs: build
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'qa' && 'qa' || 'staging' }}
     steps:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
