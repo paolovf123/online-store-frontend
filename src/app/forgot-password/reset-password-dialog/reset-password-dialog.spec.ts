@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { DialogRef } from '@angular/cdk/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ResetPasswordDialog } from './reset-password-dialog';
 
@@ -11,7 +14,7 @@ describe('ResetPasswordDialog', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ResetPasswordDialog],
-      providers: [provideHttpClientTesting(), provideRouter([])]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: DialogRef, useValue: {} }, { provide: MAT_DIALOG_DATA, useValue: {} }]
     })
     .compileComponents();
 
