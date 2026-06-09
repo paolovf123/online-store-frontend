@@ -4,7 +4,10 @@
 
 module.exports = function (config) {
   config.set({
-    reporters: ['progress', 'kjhtml', 'coverage'],
+    // 'kjhtml' (karma-jasmine-html-reporter) carga jasmine-html.js con require()
+    // y rompe en headless/esbuild ("require is not defined"); es solo para debug
+    // interactivo en navegador, no se necesita en CI.
+    reporters: ['progress', 'coverage'],
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/solution-test-ventas'),
       subdir: '.',
